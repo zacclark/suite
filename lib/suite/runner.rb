@@ -1,3 +1,4 @@
+# encoding: utf-8
 module Suite
   def test_task_group string, &block
     puts "called from module"
@@ -5,7 +6,7 @@ module Suite
   
   class Runner
     def initialize name, &block
-      Printer.print "Running Suite for #{name}:"
+      Printer.write "Running Suite for #{name}:"
       
       instance_eval(&block)
     end
@@ -15,9 +16,15 @@ module Suite
     end
     
     def execute command
-      output = `#{command}`
+      Printer.write("#{command} ... ", completed: false)
+      output = `#{command} 2>&1`
       success = $?.success?
-      Printer.print(output) unless success
+      if success
+        Printer.write("✓", completed: true, color: :green)
+      else
+        Printer.write("✖", completed: true, color: :red)
+        Printer.write(output)
+      end
     end
   end
 end
