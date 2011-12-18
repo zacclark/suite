@@ -1,7 +1,19 @@
 # encoding: utf-8
 module Suite
   class Runner
-    def initialize name, &block
+    def initialize name, opts = {}, &block
+      @options = {
+        characters: {
+          success: "✓",
+          failure: "✖"
+        },
+        colors: {
+          success: :green,
+          command: :blue,
+          failure: :red
+        }
+      }.merge(opts)
+      
       @failure = false
       
       Printer.write "running suite for #{name}:"
@@ -12,7 +24,7 @@ module Suite
       if @failure
         exit(false)
       else
-        Printer.write("✓ suite finished successfully at #{Time.now.strftime("%H:%M on %Y-%m-%d")}", color: :green)
+        Printer.write("#{@options[:characters][:success]} suite finished successfully at #{Time.now.strftime("%H:%M on %Y-%m-%d")}", color: @options[:colors][:success])
       end
     end
     
@@ -28,13 +40,13 @@ module Suite
     end
     
     def execute command
-      Printer.write("#{command} ... ", completed: false, color: :blue)
+      Printer.write("#{command} ... ", completed: false, color: @options[:colors][:command])
       output = `#{command} 2>&1`
       success = $?.success?
       if success
-        Printer.write("✓", completed: true, color: :green, skip_indent: true)
+        Printer.write(@options[:characters][:success], completed: true, color: @options[:colors][:success], skip_indent: true)
       else
-        Printer.write("✖", completed: true, color: :red, skip_indent: true)
+        Printer.write(@options[:characters][:failure], completed: true, color: @options[:colors][:failure], skip_indent: true)
         Printer.write(output)
         report_failure
       end
