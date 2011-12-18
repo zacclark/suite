@@ -80,8 +80,7 @@ describe Suite::Runner do
     
     describe "#execute" do
       it "should be callable" do
-        Suite::Runner.any_instance.should_receive(:'`').with("bundle exec rspec spec 2>&1")
-        `true`
+        Suite::Runner.any_instance.should_receive(:spin_until_done).any_number_of_times.with({string: nil, command: "bundle exec rspec spec"}).and_return(["", true])
         Suite::Runner.new "test runner" do
           group "name", do
             execute "bundle exec rspec spec"
@@ -90,8 +89,7 @@ describe Suite::Runner do
       end
       
       it "should print the output of the command if it exited false" do
-        Suite::Runner.any_instance.should_receive(:'`').with("bundle exec rspec spec 2>&1").and_return("the output")
-        `false`
+        Suite::Runner.any_instance.should_receive(:spin_until_done).any_number_of_times.with({string: nil, command: "bundle exec rspec spec"}).and_return(["the output", false])
         Suite::Printer.should_receive(:write).with("the output")
         Suite::Runner.new "test runner" do
           group "name", do
@@ -101,9 +99,8 @@ describe Suite::Runner do
       end
       
       it "should print the command it is running and a green checkmark if it succeeds" do
-        Suite::Runner.any_instance.should_receive(:'`').with("bundle exec rspec spec 2>&1").and_return("the output")
-        `true`
-        Suite::Printer.should_receive(:write).with("bundle exec rspec spec ... ", completed: false, color: :blue)
+        Suite::Printer.should_receive(:write).with("bundle exec rspec spec ... ", completed: false, color: :blue, to_string: true).and_return('fake')
+        Suite::Runner.any_instance.should_receive(:spin_until_done).with({string: 'fake', command: "bundle exec rspec spec"}).and_return(["the output WOOOOO", true])
         Suite::Printer.should_receive(:write).with("✓", completed: true, color: :green, skip_indent: true)
         Suite::Runner.new "test runner" do
           group "name", do
@@ -113,9 +110,8 @@ describe Suite::Runner do
       end
       
       it "should print the command it is running and a red X if it fails" do
-        Suite::Runner.any_instance.should_receive(:'`').with("bundle exec rspec spec 2>&1").and_return("the output")
-        `false`
-        Suite::Printer.should_receive(:write).with("bundle exec rspec spec ... ", completed: false, color: :blue)
+        Suite::Printer.should_receive(:write).with("bundle exec rspec spec ... ", completed: false, color: :blue, to_string: true).and_return('fake')
+        Suite::Runner.any_instance.should_receive(:spin_until_done).with({string: 'fake', command: "bundle exec rspec spec"}).and_return(["the output", false])
         Suite::Printer.should_receive(:write).with("✖", completed: true, color: :red, skip_indent: true)
         Suite::Runner.new "test runner" do
           group "name", do

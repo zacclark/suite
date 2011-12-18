@@ -8,6 +8,8 @@ module Suite
         
         string = "#{@indent}#{string}" unless options[:skip_indent]
         
+        return string if options[:to_string]
+        
         if options[:completed] != false
           puts string
         else

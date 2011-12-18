@@ -40,9 +40,10 @@ module Suite
     end
     
     def execute command
-      Printer.write("#{command} ... ", completed: false, color: @options[:colors][:command])
-      output = `#{command} 2>&1`
-      success = $?.success?
+      string = Printer.write("#{command} ... ", completed: false, color: @options[:colors][:command], to_string: true)
+      
+      output, success = spin_until_done(string: string, command: command)
+      
       if success
         Printer.write(@options[:characters][:success], completed: true, color: @options[:colors][:success], skip_indent: true)
       else
@@ -50,6 +51,60 @@ module Suite
         Printer.write(output)
         report_failure
       end
+    end
+    
+    def spin_until_done(opts = {})
+      options = {
+        string: "Spin ",
+        time: 0.1,
+        spinner_characters: %W( | / - \\ )
+      }.merge(opts)
+  
+      #pipe set up
+      readPipe, writePipe = IO.pipe
+
+      pid = Process.fork do        
+        readPipe.close
+        
+        writePipe.write(if options[:command]
+          {
+            blockOutput: `#{options[:command]} 2>&1`,
+            exitStatus: $?.success?
+          }.to_json
+        elsif block_given?
+          {
+            blockOutput: nil,
+            exitStatus: !!yield
+          }.to_json
+        else
+          {}.to_json
+        end)
+        
+        writePipe.close
+      end
+  
+      writePipe.close
+  
+      options[:spinner_characters].to_enum.cycle do |character|
+        begin
+          Process.getpgid( pid )
+        rescue Errno::ESRCH
+          break
+        end
+    
+        system( 'echo "$(tput cuu 1)"' )
+        $stdout.print "#{options[:string]}#{character}"
+        sleep(options[:time])
+      end
+  
+      # end line for spinner with just string
+      system( 'echo "$(tput cuu 1)"' )
+      $stdout.print options[:string]
+  
+      ret = readPipe.read
+      outputReturn = JSON.parse(ret)
+  
+      return outputReturn["blockOutput"], outputReturn["exitStatus"]
     end
   end
 end

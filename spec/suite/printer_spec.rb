@@ -39,6 +39,12 @@ describe Suite::Printer do
       Suite::Printer.decrease_indent
       Suite::Printer.decrease_indent
     end
+    
+    it "should allow you to print to a string" do
+      Suite::Printer.should_not_receive(:puts)
+      Suite::Printer.should_not_receive(:print)
+      Suite::Printer.write("something", to_string: true).should == "something"
+    end
   end
   
   describe "colorize" do
