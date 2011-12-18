@@ -9,7 +9,11 @@ module Suite
       Printer.increase_indent
       instance_eval(&block)
       Printer.decrease_indent
-      exit(false) if @failure == true
+      if @failure
+        exit(false)
+      else
+        Printer.write("✓ suite finished successfully at #{Time.now.strftime("%H:%M on %Y-%m-%d")}", color: :green)
+      end
     end
     
     def group string, &block

@@ -4,7 +4,7 @@ require 'suite'
 Suite::Runner.new "my tests" do
   group "simple" do
     execute "true"
-    execute "cd 234rwefhskfdj"
+    # execute "cd 234rwefhskfdj"
   end
   
   group "nested" do

@@ -17,6 +17,7 @@ describe Suite::Runner do
     it "should print info about the run" do
       Suite::Printer.unstub(:write)
       Suite::Printer.should_receive(:write).with("running suite for Example Test:")
+      Suite::Printer.should_receive(:write)
       Suite::Printer.should_receive(:increase_indent)
       Suite::Printer.should_receive(:decrease_indent)
       Suite::Runner.new "Example Test" do
@@ -37,6 +38,15 @@ describe Suite::Runner do
           end
         end
       }.to exit_with_code(1)
+    end
+    
+    describe "suite finished" do
+      it "should print a green success message if nothing failed" do
+        time = Time.now
+        Time.stub(:now).and_return(time)
+        Suite::Runner.new "Example Test" do
+        end
+      end
     end
   end
   
