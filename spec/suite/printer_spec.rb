@@ -27,6 +27,18 @@ describe Suite::Printer do
       Suite::Printer.should_receive(:puts).with("fake_output")
       Suite::Printer.write(string, color: :red)
     end
+    
+    it 'should allow for skipping indentation' do
+      string = "something"
+      Suite::Printer.increase_indent
+      Suite::Printer.increase_indent
+      Suite::Printer.increase_indent
+      Suite::Printer.should_receive(:puts).with(string)
+      Suite::Printer.write(string, skip_indent: true)
+      Suite::Printer.decrease_indent
+      Suite::Printer.decrease_indent
+      Suite::Printer.decrease_indent
+    end
   end
   
   describe "colorize" do

@@ -6,10 +6,12 @@ module Suite
           string = colorize(string, options[:color])
         end
         
+        string = "#{@indent}#{string}" unless options[:skip_indent]
+        
         if options[:completed] != false
-          puts "#{@indent}#{string}"
+          puts string
         else
-          print "#{@indent}#{string}"
+          print string
         end
       end
       
@@ -33,3 +35,4 @@ module Suite
     end
   end
 end
+
