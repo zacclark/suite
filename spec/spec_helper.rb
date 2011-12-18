@@ -9,6 +9,7 @@ Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each {|f| require f}
 
 RSpec.configure do |config|
   config.before(:each) do
+    Suite::Runner.any_instance.stub(:report_failure)
     Suite::Printer.stub(:write)
   end
 end

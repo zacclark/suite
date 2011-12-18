@@ -1,17 +1,15 @@
 # encoding: utf-8
 module Suite
-  def group string, &block
-    puts "called from module"
-  end
-  
   class Runner
     def initialize name, &block
+      @failure = false
+      
       Printer.write "running suite for #{name}:"
       
       Printer.increase_indent
       instance_eval(&block)
       Printer.decrease_indent
-      exit(false) if @failure
+      exit(false) if @failure == true
     end
     
     def group string, &block
@@ -34,6 +32,7 @@ module Suite
       else
         Printer.write("✖", completed: true, color: :red, skip_indent: true)
         Printer.write(output)
+        report_failure
       end
     end
   end

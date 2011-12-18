@@ -29,6 +29,7 @@ describe Suite::Runner do
     end
     
     it "should exit(false) if anything reports failure" do
+      Suite::Runner.any_instance.unstub(:report_failure)
       expect {
         Suite::Runner.new "test runner" do
           group "name" do
@@ -113,6 +114,14 @@ describe Suite::Runner do
         end
       end
       
+      it "should call report_failure if the command exits without success" do
+        Suite::Runner.any_instance.should_receive(:report_failure)
+        Suite::Runner.new "test runner" do
+          group "name", do
+            execute "false"
+          end
+        end
+      end
     end
   end
 end
