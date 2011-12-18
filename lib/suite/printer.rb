@@ -17,10 +17,12 @@ module Suite
       
       def colorize(text, color_code)
         codes = {
-          red: "\e[31m",
-          green: "\e[32m"
+          red: 31,
+          green: 32,
+          blue: 34,
+          cyan: 36
         }
-        "#{codes[color_code]}#{text}\e[0m"
+        "\e[#{codes[color_code]}m#{text}\e[0m"
       end
       
       def increase_indent

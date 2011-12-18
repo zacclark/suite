@@ -93,7 +93,7 @@ describe Suite::Runner do
       it "should print the command it is running and a green checkmark if it succeeds" do
         Suite::Runner.any_instance.should_receive(:'`').with("bundle exec rspec spec 2>&1").and_return("the output")
         `true`
-        Suite::Printer.should_receive(:write).with("bundle exec rspec spec ... ", completed: false)
+        Suite::Printer.should_receive(:write).with("bundle exec rspec spec ... ", completed: false, color: :blue)
         Suite::Printer.should_receive(:write).with("✓", completed: true, color: :green, skip_indent: true)
         Suite::Runner.new "test runner" do
           group "name", do
@@ -105,7 +105,7 @@ describe Suite::Runner do
       it "should print the command it is running and a red X if it fails" do
         Suite::Runner.any_instance.should_receive(:'`').with("bundle exec rspec spec 2>&1").and_return("the output")
         `false`
-        Suite::Printer.should_receive(:write).with("bundle exec rspec spec ... ", completed: false)
+        Suite::Printer.should_receive(:write).with("bundle exec rspec spec ... ", completed: false, color: :blue)
         Suite::Printer.should_receive(:write).with("✖", completed: true, color: :red, skip_indent: true)
         Suite::Runner.new "test runner" do
           group "name", do

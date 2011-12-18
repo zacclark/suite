@@ -24,7 +24,7 @@ module Suite
     end
     
     def execute command
-      Printer.write("#{command} ... ", completed: false)
+      Printer.write("#{command} ... ", completed: false, color: :blue)
       output = `#{command} 2>&1`
       success = $?.success?
       if success
