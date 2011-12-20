@@ -5,4 +5,5 @@ require 'json'
 module Suite
   require 'suite/printer'
   require 'suite/runner'
+  require 'suite/spinner'
 end
