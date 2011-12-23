@@ -65,11 +65,7 @@ module Suite
         wait_time: 0.1
       }.merge(opts)
       
-      if @is_bash_command
-        self.fork_command_block
-        else
-        self.fork_ruby_block
-      end
+      self.fork_block
       
       @write_pipe.close
       self.spin_for_current_process( {wait_time: options[:wait_time]} )
@@ -90,44 +86,28 @@ module Suite
     end
     
     ########## Utility Methods ###########
-    
-    def fork_ruby_block
+
+    def fork_block
       @process_ID = Process.fork do
         @read_pipe.close
         hash_for_pipe = {
           exit_status: true
         }
-        
-        begin 
+        begin
           block_value = @process_block.call
         rescue => error
           hash_for_pipe[:ruby_error] = error
           hash_for_pipe[:exit_status] = false
         end
-        
         hash_for_pipe[:block_output] = block_value
         
-        @write_pipe.write(Marshal::dump( hash_for_pipe ))
-        @write_pipe.close
-      end 
-    end # fork_ruby_block
-    
-    
-    def fork_command_block
-      @process_ID = Process.fork do
-        @read_pipe.close
-        
-        block_value = @process_block.call
-        
-        hash_for_pipe = {
-          exit_status: $?.success?,
-          block_output: block_value
-        }
-        
+        if @is_bash_command
+          hash_for_pipe[:exit_status] = $?.success?
+        end
         @write_pipe.write(Marshal::dump( hash_for_pipe ))
         @write_pipe.close
       end
-    end # fork_command_block
+    end # fork_block
     
     
     def spin_for_current_process (opts = {} )
@@ -167,13 +147,12 @@ end
 #    sleep(3)
 #    evil.cheese
 #end.spin_until_done
-
+#
 #puts spinner1.block_output
 #puts spinner1.exit_status
 #puts spinner1.ruby_error
 #puts ''
-#p spinner1.ruby_error
-
-#spinner2 = Spinner.new({spinner_string: "Spin me!... "}, 'ls').spin_until_done
-
+#
+#spinner2 = Suite::Spinner.new({spinner_string: "Spin me!... "}, 'ls').spin_until_done
+#
 #puts spinner2.exit_status
