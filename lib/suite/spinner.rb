@@ -2,7 +2,8 @@
 module Suite
   
   class Spinner
-    attr_accessor :exit_status, :block_output, :ruby_error
+    attr_accessor :exit_status, :block_output, :ruby_error,
+                  :spin_block, :process_block, :final_block
     
     @exit_status
     @block_output
@@ -59,7 +60,8 @@ module Suite
       @spin_iteration = 0
     end # initilize
     
-    
+    # Spins the current thread until the spinner process is finished
+    # @spin_block will get called every opts[:wait_time] seconds
     def spin_until_done(opts = {})
       options = {
         wait_time: 0.1
@@ -79,10 +81,20 @@ module Suite
       return self
     end
     
-    
+    # reset object state so it can be run again
     def reset_state
+      begin
+        Process.getpgid( @process_ID )
+        raise 'Process still running'
+      rescue Errno::ESRCH
+        return false # rescue error and indicate reset failure
+      end
       @read_pipe, @write_pipe = IO.pipe
       @spin_iteration = 0
+      @block_output = nil
+      @exit_status = nil
+      @ruby_error = nil
+      return true # indicate reset success
     end
     
     ########## Utility Methods ###########
@@ -136,7 +148,7 @@ module Suite
         
         sleep(options[:wait_time])
         @spin_iteration += 1
-      end
+      end # until done
     end # spin_for_current_process
   end
 end
