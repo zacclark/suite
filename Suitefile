@@ -1,0 +1,13 @@
+timing :on
+
+task "ls"
+task "ruby -e \"sleep(2); exit 0;\""
+task "ruby -e \"sleep(4); exit 1;\""
+
+on_success do
+	banner "build success", "!"
+end
+
+on_failure do 
+	banner "build failed", "x"
+end

@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+require File.expand_path("../lib/suite", File.dirname(__FILE__))
+
+suite = Suite.new
+suite.instance_eval File.read("Suitefile")
+exit suite.run!
