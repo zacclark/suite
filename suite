@@ -1,9 +1,0 @@
-#!/Users/zac/.rvm/rubies/ruby-1.9.2-p290/bin/ruby
-$LOAD_PATH.unshift(File.join(File.dirname(__FILE__)))
-require 'lib/suite'
-
-Suite::Runner.new "rubygem Suite" do
-  group 'specs' do
-    execute "bundle exec rspec spec"
-  end
-end
